@@ -108,6 +108,7 @@ class MarkdownBuilder implements md.NodeVisitor {
     required this.imageBuilder,
     required this.checkboxBuilder,
     required this.bulletBuilder,
+    required this.blockquoteBuilder,
     required this.builders,
     required this.paddingBuilders,
     required this.listItemCrossAxisAlignment,
@@ -139,6 +140,9 @@ class MarkdownBuilder implements md.NodeVisitor {
 
   /// Called when building a custom bullet.
   final MarkdownBulletBuilder? bulletBuilder;
+
+  /// Called when building a custom blockquote.
+  final MarkdownBlockquoteBuilder? blockquoteBuilder;
 
   /// Call when build a custom widget.
   final Map<String, MarkdownElementBuilder> builders;
@@ -360,7 +364,7 @@ class MarkdownBuilder implements md.NodeVisitor {
       child = _buildRichText(
         TextSpan(
           style: _isInBlockquote
-              ? styleSheet.blockquote!.merge(_inlines.last.style)
+              ? _inlines.last.style!.merge(styleSheet.blockquote!)
               : _inlines.last.style,
           text: trimText(text.text),
           recognizer: _linkHandlers.isNotEmpty ? _linkHandlers.last : null,
@@ -463,13 +467,17 @@ class MarkdownBuilder implements md.NodeVisitor {
         }
       } else if (tag == 'blockquote') {
         _isInBlockquote = false;
-        child = DecoratedBox(
-          decoration: styleSheet.blockquoteDecoration!,
-          child: Padding(
-            padding: styleSheet.blockquotePadding!,
-            child: child,
-          ),
-        );
+        if (blockquoteBuilder != null) {
+          child = blockquoteBuilder!(delegate.context, element, child);
+        } else {
+          child = DecoratedBox(
+            decoration: styleSheet.blockquoteDecoration!,
+            child: Padding(
+              padding: styleSheet.blockquotePadding!,
+              child: child,
+            ),
+          );
+        }
       } else if (tag == 'pre') {
         child = Container(
           clipBehavior: Clip.hardEdge,

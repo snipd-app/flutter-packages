@@ -82,6 +82,15 @@ enum BulletStyle {
   unorderedList,
 }
 
+/// Signature for custom blockquote widget.
+///
+/// Used by [MarkdownWidget.blockquoteBuilder]
+typedef MarkdownBlockquoteBuilder = Widget Function(
+  BuildContext context,
+  md.Element element,
+  Widget child,
+);
+
 /// Creates a format [TextSpan] given a string.
 ///
 /// Used by [MarkdownWidget] to highlight the contents of `pre` elements.
@@ -223,6 +232,7 @@ abstract class MarkdownWidget extends StatefulWidget {
     this.imageBuilder,
     this.checkboxBuilder,
     this.bulletBuilder,
+    this.blockquoteBuilder,
     this.builders = const <String, MarkdownElementBuilder>{},
     this.paddingBuilders = const <String, MarkdownPaddingBuilder>{},
     this.fitContent = false,
@@ -285,6 +295,9 @@ abstract class MarkdownWidget extends StatefulWidget {
 
   /// Called when building a bullet
   final MarkdownBulletBuilder? bulletBuilder;
+
+  /// Called when building a blockquote
+  final MarkdownBlockquoteBuilder? blockquoteBuilder;
 
   /// Render certain tags, usually used with [extensionSet]
   ///
@@ -393,6 +406,7 @@ class _MarkdownWidgetState extends State<MarkdownWidget>
       imageBuilder: widget.imageBuilder,
       checkboxBuilder: widget.checkboxBuilder,
       bulletBuilder: widget.bulletBuilder,
+      blockquoteBuilder: widget.blockquoteBuilder,
       builders: widget.builders,
       paddingBuilders: widget.paddingBuilders,
       fitContent: widget.fitContent,
@@ -470,6 +484,7 @@ class MarkdownBody extends MarkdownWidget {
     super.imageBuilder,
     super.checkboxBuilder,
     super.bulletBuilder,
+    super.blockquoteBuilder,
     super.builders,
     super.paddingBuilders,
     super.listItemCrossAxisAlignment,
@@ -525,6 +540,7 @@ class Markdown extends MarkdownWidget {
     super.imageBuilder,
     super.checkboxBuilder,
     super.bulletBuilder,
+    super.blockquoteBuilder,
     super.builders,
     super.paddingBuilders,
     super.listItemCrossAxisAlignment,
